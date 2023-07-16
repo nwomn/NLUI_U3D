@@ -1,0 +1,61 @@
+[
+    {
+        "name": "get_current_weather",
+        "description": "Get the current weather in a given location",
+        "parameters": 
+        {
+            "type": "object",
+            "properties": 
+            {
+                "location": 
+                {
+                    "type": "string",
+                    "description": "The city and state, e.g. San Francisco, CA"
+                },
+                "unit": 
+                {
+                    "type": "string",
+                    "description": "The temperature unit to use. Infer this from the users location.",
+                    "enum": 
+                    [
+                        "celsius",
+                        "fahrenheit"
+                    ]
+                }
+            },
+            "required": 
+            [
+                "location",
+                "unit"
+            ]
+        }
+    },
+    {
+        "name": "get_bus_info",
+        "description": "Get the bus information in a given location",
+        "parameters": 
+        {
+            "type": "object",
+            "properties": 
+            {
+                "location": 
+                {
+                    "type": "string",
+                    "description": "The specifc street, e.g. Suning Avenue"
+                }
+            },
+            "required": [
+                "location"
+            ]
+        }
+    },
+    {
+        "name": "other_situations",
+        "description": "For handling the situation that the user query is not fitting in any functions",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+    }
+]
