@@ -50,12 +50,52 @@
         }
     },
     {
-        "name": "other_situations",
-        "description": "For handling the situation that the user query is not fitting in any functions",
-        "parameters": {
+        "name": "create_cube",
+        "description": "创建指定数量的立方体，立方体的数量自动转换成阿拉伯数字",
+        "parameters": 
+        {
             "type": "object",
-            "properties": {},
-            "required": []
+            "properties": 
+            {
+                "number": 
+                {
+                    "type": "string",
+                    "description": "要创建立方体的个数，默认数量为1个"
+                }
+            },
+            "required": [
+                "number"
+            ]
+        }
+    },
+    {
+        "name": "create_sphere",
+        "description": "创建指定数量的球体，球体的数量自动转换成阿拉伯数字",
+        "parameters": 
+        {
+            "type": "object",
+            "properties": 
+            {
+                "number": 
+                {
+                    "type": "string",
+                    "description": "要创建球体的个数，默认数量为1个"
+                }
+            },
+            "required": [
+                "number"
+            ]
+        }
+    }
+    ,
+    {
+        "name": "clear_objects",
+        "description": "清除先前创建的所有物体",
+        "parameters": 
+        {
+            "type": "object",
+            "properties": { },
+            "required": [ ]
         }
     }
 ]

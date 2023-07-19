@@ -7,18 +7,26 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 using UnityEngine.UI;
+using OpenAI;
+using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 
 public class NLUI : MonoBehaviour
 {
     [SerializeField] private Text contentText;
-    // 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
-    readonly string apiKey = "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";
-    public static JArray Memory { get; set; }
+    readonly string[] apiKey = { 
+        "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", 
+        "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",
+        "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",
+        "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"
+    };
+    public static JArray Memory;
     public string user_query;
 
     private static UnityWebRequest request;
     private static JObject jsonRequest; // 统一的JSON请求模板对象
     private static string api_key;
+    private System.Random random = new System.Random();
 
     void Start()
     {
@@ -27,13 +35,15 @@ public class NLUI : MonoBehaviour
     // 本体初始化
     void NLUI_Initialized()
     {
-        api_key = apiKey;
+        api_key = apiKey[random.Next(apiKey.Length)];
         Memory = new()
         {
             new JObject
             {
                 { "role", "system" },
-                { "content", "你是一个自然语言UI，接下来接收用户的自然语言请求，返回应该调用函数的函数名和对应参数，最后结合相应函数的响应，用自然语言回复用户。无论用户说什么，你都只能判断用户输入符合哪一种函数描述，然后根据函数返回响应。" }
+                { "content", "你是一个自然语言UI，接下来接收用户的自然语言请求，返回应该调用函数的函数名和对应参数，最后结合相应函数的响应，用自然语言回复用户。你的回复应当满足以下条件：" +
+                "1. 注意回复最多不能超过100字。" +
+                "2. 对于不符合任一函数描述的请求，应当向用户反问以确认用户的需求。" }
             }
         };
     }
@@ -58,6 +68,7 @@ public class NLUI : MonoBehaviour
             { "functions", functionArray }
         };
         ChatCompletion(jsonRequest, FirstFunctionResponseCallBack);
+        contentText.text = "Answering Question...";
     }
     // 第一次请求的回调函数：根据用户自然语言请求获取要调用函数名和传入的参数
     private void FirstFunctionResponseCallBack(AsyncOperation asyncOperation)
@@ -75,7 +86,7 @@ public class NLUI : MonoBehaviour
             JObject messageJson = JObject.Parse(message);
             Memory.Add(messageJson); // 添加第一次响应到信息列表
             Debug.Log(Memory);
-            // Debug.Log((string)messageJson["content"] != "null");
+            Debug.Log(messageJson["function_call"]);
 
             // JSON Responce Example: 
             //{
@@ -86,7 +97,7 @@ public class NLUI : MonoBehaviour
             //        "arguments": "{\n  \"location\": \"南京\",\n  \"unit\": \"celsius\"\n}"
             //    }
             //}
-            if ((string)messageJson["content"] == null)
+            if (messageJson["function_call"] != null)
             {
                 string functionName = (string)messageJson["function_call"]["name"]; // 要调用的函数名
                 string argumentsJson = (string)messageJson["function_call"]["arguments"];
@@ -94,6 +105,7 @@ public class NLUI : MonoBehaviour
                 string[] parameters = argumentsObject.Values().Select(v => v.ToString()).ToArray(); // 要传入的参数
                 JObject result = (JObject)CallFunction(functionName, parameters);
                 Debug.Log(result);
+                api_key = apiKey[random.Next(apiKey.Length)];
                 Memory.Add(new JObject
                 {
                     { "role", "function" },
@@ -106,6 +118,28 @@ public class NLUI : MonoBehaviour
                 string content = (string)messageJson["content"];
                 Debug.Log(content);
                 contentText.text = content;
+                GameObject.Find("TextToSpeech").GetComponent<TextToSpeech>().Text = content;
+                string per = GameObject.Find("TextToSpeech").GetComponent<TextToSpeech>().Per;
+                Debug.Log(per);
+                Action<string, string> setTextToSpeechValues = (fileName, per) =>
+                {
+                    TextToSpeech tts = GameObject.Find("TextToSpeech").GetComponent<TextToSpeech>();
+                    tts.fileName = fileName;
+                    tts.Per = per;
+                    tts.BttnTtSClick();
+                };
+
+                // 调用Lambda表达式设置不同的值
+                setTextToSpeechValues("DuXiaoYu", "1");
+                setTextToSpeechValues("DuXiaoMei", "0");
+                setTextToSpeechValues("DuYaYa", "4");
+                setTextToSpeechValues("DuXiaoYao", "5003");
+                setTextToSpeechValues("DuXiaoLu", "5118");
+                setTextToSpeechValues("DuBoWen", "106");
+                setTextToSpeechValues("DuXiaoTong", "110");
+                setTextToSpeechValues("DuXiaoMeng", "111");
+                setTextToSpeechValues("DuMiDuo", "103");
+                setTextToSpeechValues("DuXiaoJiao", "5");
             }
         }
     }
@@ -126,6 +160,29 @@ public class NLUI : MonoBehaviour
             Memory.Add(messageJson); // 添加第一次响应到信息列表
             Debug.Log(Memory);
             contentText.text = (string)messageJson["content"];
+            GameObject.Find("TextToSpeech").GetComponent<TextToSpeech>().Text = (string)messageJson["content"];
+            string per = GameObject.Find("TextToSpeech").GetComponent<TextToSpeech>().Per;
+            Debug.Log(per);
+            Action<string, string> setTextToSpeechValues = (fileName, per) =>
+            {
+                TextToSpeech tts = GameObject.Find("TextToSpeech").GetComponent<TextToSpeech>();
+                tts.fileName = fileName;
+                tts.Per = per;
+                tts.BttnTtSClick();
+                Task.Delay(TimeSpan.FromSeconds(1)).Wait(); // 延时1秒
+            };
+
+            // 调用Lambda表达式设置不同的值
+            setTextToSpeechValues("DuXiaoYu", "1");
+            setTextToSpeechValues("DuXiaoMei", "0");
+            setTextToSpeechValues("DuYaYa", "4");
+            setTextToSpeechValues("DuXiaoYao", "5003");
+            setTextToSpeechValues("DuXiaoLu", "5118");
+            setTextToSpeechValues("DuBoWen", "106");
+            setTextToSpeechValues("DuXiaoTong", "110");
+            setTextToSpeechValues("DuXiaoMeng", "111");
+            setTextToSpeechValues("DuMiDuo", "103");
+            setTextToSpeechValues("DuXiaoJiao", "5");
         }
     }
     /// <summary>

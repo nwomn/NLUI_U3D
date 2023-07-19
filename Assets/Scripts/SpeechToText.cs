@@ -11,7 +11,7 @@ namespace OpenAI
         [SerializeField] private Dropdown dropdown;
 
         private readonly string fileName = "output.wav";
-        private readonly int duration = 5;
+        public int duration = 15;
 
         private AudioClip clip;
         private bool isRecording;
@@ -70,7 +70,8 @@ namespace OpenAI
                 FileData = new FileData() { Data = data, Name = "audio.wav" },
                 // File = Application.persistentDataPath + "/" + fileName,
                 Model = "whisper-1",
-                Language = "zh"
+                Language = "zh",
+                Prompt = "限制用简体中文回答"
             };
             var res = await openai.CreateAudioTranscription(req);
 
