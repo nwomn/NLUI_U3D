@@ -26,8 +26,8 @@ public class TextToSpeech : MonoBehaviour
         // Debug.Log(tex);
         string url = "https://tsn.baidu.com/text2audio";
         byte[] requestData = Encoding.UTF8.GetBytes(
-            "tex=" + tex + 
-            "&tok=24.b5e4dc8f779767dcd540347d107becb3.2592000.1691564097.282335-35964679" + // Access Token
+            "tex=" + tex +
+            "&tok=24.81ae3f57f7e6d25aa83732651de948a4.2592000.1697454261.282335-35964679" + // Access Token
             "&cuid=Womendeai080921" + // 用户唯一标识，用来计算UV值。建议填写能区分用户的机器 MAC 地址或 IMEI 码，长度为60字符以内
             "&ctp=1" + // 客户端类型选择，web端填写固定值1
             "&lan=zh" + // 固定值zh。语言选择,目前只有中英文混合模式，填写固定值zh
@@ -56,22 +56,16 @@ public class TextToSpeech : MonoBehaviour
             {
                 string contentType = www.GetResponseHeader("Content-Type");
                 Debug.Log("Content-Type: " + contentType);
-                int i = 0;
-                while (i<10)
+                if (contentType == "audio/wav")
                 {
-                    if (contentType == "audio/wav")
-                    {
-                        AudioClip audioClip = DownloadHandlerAudioClip.GetContent(www);
-                        // 在这里处理音频数据（audioClip）
-                        Debug.Log("音频下载成功！");
-                        SaveAudioToFile(savePath, audioClip);
-                        break;
-                    }
-                    else if (contentType == "application/json")
-                    {
-                        Debug.Log("重试... ");
-                    }
-                    i++;
+                    AudioClip audioClip = DownloadHandlerAudioClip.GetContent(www);
+                    // 在这里处理音频数据（audioClip）
+                    Debug.Log("音频下载成功！");
+                    SaveAudioToFile(savePath, audioClip);
+                }
+                else if (contentType == "application/json")
+                {
+                    Debug.Log("重试... ");
                 }
             }
         }

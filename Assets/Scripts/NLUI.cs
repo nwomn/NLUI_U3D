@@ -14,11 +14,9 @@ using System.Threading.Tasks;
 public class NLUI : MonoBehaviour
 {
     [SerializeField] private Text contentText;
-    readonly string[] apiKey = { 
-        "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", 
-        "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",
-        "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",
-        "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"
+    readonly string[] apiKey = {
+        "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",
+        "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"
     };
     public static JArray Memory;
     public string user_query;
@@ -196,7 +194,7 @@ public class NLUI : MonoBehaviour
         var sendData = JsonConvert.SerializeObject(query);
 
         request = new();
-        request = UnityWebRequest.PostWwwForm("https://api.openai.com/v1/chat/completions", sendData);
+        request = UnityWebRequest.Post("https://api.openai.com/v1/chat/completions", sendData);
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", "Bearer " + api_key);
 
